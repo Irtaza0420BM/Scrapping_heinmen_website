@@ -254,8 +254,6 @@ class HeinemannScraper:
         if current_page + 1 < len(pagination_links):
             return pagination_links[current_page + 1]
         return None
-
-
 if __name__ == "__main__":
     config = ScraperConfig(
         max_pages=3,
