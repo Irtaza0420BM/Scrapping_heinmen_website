@@ -563,7 +563,7 @@ class HeinemannScraper:
         except Exception as e:
             self.logger.error(f"Failed to write CSV: {str(e)}")
             return None
-    
+
     def write_to_json(self, products: List[ProductData], filename: str = None):
         if not products:
             self.logger.warning("No products to write to JSON")
@@ -591,8 +591,6 @@ class HeinemannScraper:
         except Exception as e:
             self.logger.error(f"Failed to write JSON: {str(e)}")
             return None
-
-
 if __name__ == "__main__":
     config = ScraperConfig(
         api_key=os.environ.get("OPENAI_API_KEY"),  
