@@ -234,7 +234,6 @@ class HeinemannScraper:
                 os.makedirs(self.config.output_dir, exist_ok=True)
                 self.logger.info(f"Created output directory: {self.config.output_dir}")
         except Exception as e:
-            # Fallback to current directory if there's an issue
             self.logger.error(f"Failed to create output directory: {str(e)}")
             self.config.output_dir = "."
 
