@@ -27,8 +27,6 @@ class ScraperConfig(BaseModel):
         "Accept-Language": "en-US,en;q=0.5",
         "Referer": "https://www.heinemann-shop.com/",
     }
-
-
 class Selectors(BaseModel):
     results_count: str = "h1.m-category-overview__title"
     product_list: str = "ul.c-article-list"
