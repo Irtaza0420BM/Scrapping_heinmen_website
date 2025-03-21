@@ -61,7 +61,6 @@ class ProductData(BaseModel):
     manufacturer_info: Optional[str] = None
     warnings: Optional[str] = None
     specifications: Optional[Dict[str, str]] = None
-
 class HeinemannScraper:
     def __init__(self, config: ScraperConfig = None, selectors: Selectors = None):
         self.config = config or ScraperConfig()
@@ -94,7 +93,6 @@ class HeinemannScraper:
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         return logger
-
     def _construct_url(self, airport: str, search_text: str, page: int = None) -> str:
         base_path = self.config.search_path.format(airport=airport)
         url = urljoin(self.config.base_url, base_path)
