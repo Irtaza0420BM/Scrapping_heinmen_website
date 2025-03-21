@@ -8,7 +8,6 @@ def print_product(product: ProductData, number: int):
     print(f"\n{'=' * 50}")
     print(f"PRODUCT #{number} DETAILS")
     print("=" * 50)
-    
     fields = [
         ("ID", product.id),
         ("Name", product.name),
