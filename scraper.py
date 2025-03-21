@@ -63,9 +63,6 @@ class ProductData(BaseModel):
     warnings: Optional[str] = None
     specifications: Optional[Dict[str, str]] = None
 
-
-
-
 class HeinemannScraper:
     def __init__(self, config: ScraperConfig = None, selectors: Selectors = None):
         self.config = config or ScraperConfig()
@@ -87,7 +84,7 @@ class HeinemannScraper:
         session.headers.update({"User-Agent": self.config.user_agent})
         session.headers.update(self.config.headers)
         return session
-
+    
     def _configure_logger(self) -> logging.Logger:
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.INFO)
