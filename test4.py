@@ -81,10 +81,9 @@ class ProductData(BaseModel):
         """Convert ProductData instance to dictionary with proper serialization."""
         data = self.model_dump(
             exclude_none=True,
-            exclude={"specifications"}  # Exclude raw specifications if needed
+            exclude={"specifications"} 
         )
         
-        # Handle special fields
         if hasattr(self, "specifications"):
             data["specifications"] = json.dumps(self.specifications)
             
@@ -207,7 +206,6 @@ class BrowserProfileManager:
         return proxy
 
 class HeinemannScraper:
-    """Scraper for Heinemann shop product data."""
     
     def __init__(self, config: Optional[ScraperConfig] = None, selectors: Optional[Selectors] = None):
         """Initialize the scraper with configuration and selectors."""
@@ -248,7 +246,6 @@ class HeinemannScraper:
         session.mount("http://", adapter)
         session.mount("https://", adapter)
         
-        # Set initial headers
         headers = self.browser_manager.get_random_headers()
         session.headers.update(headers)
         
@@ -258,19 +255,16 @@ class HeinemannScraper:
         """Configure logger with appropriate handlers and formatters."""
         logger = logging.getLogger("heinemann_scraper")
         
-        # Clear any existing handlers to avoid duplicates
         if logger.handlers:
             logger.handlers.clear()
             
         logger.setLevel(self.config.log_level)
         
         try:
-            # Ensure log directory exists
             log_dir = os.path.dirname(os.path.join(self.config.output_dir, "scraper.log"))
             if log_dir and not os.path.exists(log_dir):
                 os.makedirs(log_dir, exist_ok=True)
             
-            # Console handler
             console_handler = logging.StreamHandler()
             console_formatter = logging.Formatter(
                 "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -278,7 +272,6 @@ class HeinemannScraper:
             console_handler.setFormatter(console_formatter)
             logger.addHandler(console_handler)
             
-            # File handler
             file_handler = logging.FileHandler(
                 os.path.join(self.config.output_dir, "scraper.log"),
                 mode='a'  # Append mode
@@ -287,7 +280,6 @@ class HeinemannScraper:
             logger.addHandler(file_handler)
             
         except Exception as e:
-            # If file handler fails, just use console handler
             print(f"Error setting up file logger: {str(e)}")
             if not logger.handlers:
                 console_handler = logging.StreamHandler()
@@ -338,9 +330,8 @@ class HeinemannScraper:
         base_delay = self.config.rate_limit_delay
         jitter = self.config.rate_limit_jitter
         
-        # Calculate random delay with jitter
         delay = base_delay + random.uniform(-jitter, jitter)
-        delay = max(0.1, delay)  # Ensure delay is at least 0.1 seconds
+        delay = max(0.1, delay) 
         
         time.sleep(delay)
 
@@ -360,13 +351,10 @@ class HeinemannScraper:
             
             self.logger.debug(f"Requesting: {url}")
             
-            # Get the appropriate cookie jar
             cookies = self.browser_manager.get_cookies()
             
-            # Add a random delay
             self._add_request_delay()
             
-            # Make the request
             response = self.session.get(
                 url, 
                 timeout=self.config.request_timeout,
@@ -376,7 +364,6 @@ class HeinemannScraper:
             
             response.raise_for_status()
             
-            # Update cookies if we got any
             if cookies is not None and response.cookies:
                 cookies.update(response.cookies)
             
@@ -673,7 +660,6 @@ class HeinemannScraper:
         Returns:
             Tuple of (count, products list)
         """
-        # Validate inputs
         if not search_text:
             self.logger.error("Search text cannot be empty")
             return 0, []
@@ -681,7 +667,6 @@ class HeinemannScraper:
         airport = airport or self.config.default_airport
         self.logger.info(f"Starting scrape for '{search_text}' at {airport} airport")
         
-        # Reset counters
         self.current_product_count = 0
         self.request_count = 0
         
@@ -769,7 +754,7 @@ class HeinemannScraper:
         self.logger.info(f"Scrape complete: {len(products)} products from {total_pages_processed} pages")
         return len(products), products
     
-    def write_to_csv(self, products: List[ProductData], filename: str = None):
+    def write_to_csv(self, products: List[ProductData], filename: str = None, mode: str = None):
         if not products:
             self.logger.warning("No products to write to CSV")
             return
@@ -779,12 +764,13 @@ class HeinemannScraper:
             filename = f"products_{timestamp}.csv"
             
         filepath = os.path.join(self.config.output_dir, filename)
-        
+        if not mode:
+            mode = 'w'
         try:
             sample_data = products[0].to_dict()
             fieldnames = list(ProductData.model_json_schema()["properties"].keys())
         
-            with open(filepath, mode='w', newline='', encoding='utf-8-sig') as file:
+            with open(filepath, mode, newline='', encoding='utf-8-sig') as file:
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
                 writer.writeheader()
             
@@ -794,7 +780,7 @@ class HeinemannScraper:
             self.logger.error(f"CSV write error: {str(e)}")
 
     
-    def write_to_json(self, products: List[ProductData], filename: str = None):
+    def write_to_json(self, products: List[ProductData], filename: str = None , mode: str = None):
         if not products:
             self.logger.warning("No products to write to JSON")
             return
@@ -805,10 +791,12 @@ class HeinemannScraper:
             
         filepath = os.path.join(self.config.output_dir, filename)
         
+        if not mode:
+            mode = 'w'
         try:
             products_data = [product.to_dict() for product in products]
             
-            with open(filepath, mode='w', encoding='utf-8') as file:
+            with open(filepath, mode, encoding='utf-8') as file:
                 json.dump({
                     "timestamp": datetime.now().isoformat(),
                     "count": len(products),
@@ -831,16 +819,14 @@ if __name__ == "__main__":
         log_level=logging.INFO,
         output_dir="output"
     )
-    
+    airports=['fra', 'ber' ,'dtm', 'dus', 'ham', 'haj']
     scraper = HeinemannScraper(config=config)
-    
-    results_count, products = scraper.scrape(
-        search_text="johnnie walker blue", 
-        airport = "fra",
-        category="whisky",
-        max_products=100
-    )
-
-
-    scraper.write_to_csv(products)
-    scraper.write_to_json(products)
+    for airport_name in airports:
+        results_count, products = scraper.scrape(
+            search_text="johnnie walker blue", 
+            airport = airport_name,
+            category="whisky",
+            max_products=100
+        )
+        scraper.write_to_csv(products, filename="all_airports_data_3-27-2025.csv", mode='a')
+        scraper.write_to_json(products, filename="all_airports_data_3-27-2025.json", mode='a')
