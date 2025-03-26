@@ -262,7 +262,7 @@ if __name__ == "__main__":
     )
     
     scraper = HeinemannScraper(config=config)
-    total, products = scraper.scrape("johnny blue whiskey", "fra")  # Corrected search text
+    total, products = scraper.scrape("johnny blue whiskey", "fra")  
 
     print(f"Total products scraped: {total}")
     for product in products[:2]:

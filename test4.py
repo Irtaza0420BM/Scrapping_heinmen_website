@@ -62,7 +62,6 @@ class Selectors(BaseModel):
     product_link: str = "a.js-ga-article-link"
     accordion: str = "div.c-accordion.js-accordion"  
 
-
 class ProductData(BaseModel):
     id: str
     name: str
@@ -120,7 +119,6 @@ class ProductData(BaseModel):
                 return price_match.group(1).replace(',', '.')
         return v
     
-
 class BrowserProfileManager:
     
     def __init__(self, randomize_user_agent=True, cookie_rotation=True):
@@ -207,7 +205,6 @@ class BrowserProfileManager:
         proxy = proxy_list[self.proxy_index % len(proxy_list)]
         self.proxy_index += 1
         return proxy
-
 
 class HeinemannScraper:
     """Scraper for Heinemann shop product data."""
@@ -604,11 +601,9 @@ class HeinemannScraper:
     def _extract_json(self, content: str) -> Optional[str]:
         """Robust JSON extraction with multiple fallbacks"""
         try:
-            # First try: Direct parse
             json.loads(content)
             return content
         except json.JSONDecodeError:
-            # Second try: Extract first JSON block
             match = re.search(r'\{.*?\}', content, re.DOTALL)
             if match:
                 return match.group()
@@ -778,7 +773,7 @@ class HeinemannScraper:
         if not products:
             self.logger.warning("No products to write to CSV")
             return
-            
+                    
         if not filename:
             timestamp = datetime.now().strftime("%Y-%m-%d")
             filename = f"products_{timestamp}.csv"
@@ -841,6 +836,7 @@ if __name__ == "__main__":
     
     results_count, products = scraper.scrape(
         search_text="johnnie walker blue", 
+        airport = "fra",
         category="whisky",
         max_products=100
     )
